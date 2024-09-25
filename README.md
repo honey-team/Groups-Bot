@@ -1,26 +1,27 @@
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/26MpP9erzt)
+[![Status](https://img.shields.io/badge/Status-active-green)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![Github Issues](https://img.shields.io/badge/Issues-0_open-green)](https://github.com/honey-team/Groups-Bot/issues)
+[![Github Pull Requests](https://img.shields.io/badge/Pull_requests-0_open-green)](https://github.com/honey-team/Groups-Bot/pulls)
+[![License](https://img.shields.io/badge/License-Apache_2.0-green)](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.apache.org/licenses/LICENSE-2.0.txt&ved=2ahUKEwjf9Pza5t2IAxU2HBAIHVEVJrsQFnoECA8QAQ&usg=AOvVaw0ttBCWhBqQYWwuBtfDuA1H)
 
-![Status](https://img.shields.io/badge/status-active)
-
-[![GitHub Issues](https://img.shields.io/github/issues/kotazzz/krpg.svg)](https://github.com/kotazzz/krpg/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kotazzz/krpg.svg)](https://github.com/kotazzz/krpg/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
-[![Discord](https://img.shields.io/discord/992780447870357574?logo=discord)
-](https://discord.gg/FKcURWZsMW)
-[![Telegram](https://img.shields.io/badge/%D0%A2%D0%B5%D0%BB%D0%B5%D0%B3%D1%80%D0%B0%D0%BC-%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB-blue?logo=telegram)
-](https://t.me/krpgd)
-[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
-
-# Groups Bot
+# Groups Bot | RU
 
 Бот, для создания временных голосовых и текстовых каналов в discord.
 
 ## Содержание
 
+- [Команды бота](#команды-бота)
 - [Технологии](#технологии)
-- [To do](#to-do)
+  - [Установка зависимостей](#установка-зависимостей)
+  - [Запуск бота](#запуск-бота)
 - [FAQ](#faq)
+  - [Зачем вы разработали этот проект?](#зачем-вы-разработали-этот-проект)
+- [To do](#to-do)
 - [Команда проекта](#команда-проекта)
+- [Источники](#источники)
+- [Благодарности](#благодарности)
+
+## Команды бота
+
 
 ## Технологии
 
@@ -45,23 +46,26 @@ run.bat
 
 ## FAQ
 
-Если потребители вашего кода часто задают одни и те же вопросы, добавьте ответы на них в этом разделе.
-
 ### Зачем вы разработали этот проект?
 
-Чтобы был.
+Бот создан для приватного сервера HoneyTeam
 
 ## To do
+<!--❌✔️-->
 
-- [x] Сделать concept
+- ❌ Сделать README.md (TheHakerTech)
 
 ## Команда проекта
 
 Оставьте пользователям контакты и инструкции, как связаться с командой разработки.
 
-- [TheHakerTech](https://github.com/TheHakerTech) — Programmer & Designer
+- [TheHakerTech](https://github.com/TheHakerTech) — Programmer & Designer (owner)
 - [vaiserYT](https://github.com/vaiserYT) — Programmer
 
 ## Источники
 
 Идея - [тут](https://voicemaster.xyz/)
+
+## Благодарности
+
+(пусто)
