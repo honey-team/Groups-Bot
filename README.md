@@ -1,4 +1,3 @@
-[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/HoneyTeamC)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/26MpP9erzt)
 
 # Groups Bot
@@ -13,6 +12,9 @@
 - [Команда проекта](#команда-проекта)
 
 ## Технологии
+
+[![Python 3.12.6](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/release/python-3126/)
+
 
 - [Python 3.12.6](https://www.python.org/downloads/release/python-3126/)
 - [discord.py 2.3.2](https://discordpy.readthedocs.io/en/stable/)
