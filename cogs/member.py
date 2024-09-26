@@ -1,4 +1,5 @@
 import disnake, datetime
+from disnake import Localised
 from disnake.ext import commands
 from services.interfaces import AdminCommandsInterface
 
@@ -7,8 +8,8 @@ class MemberCog(commands.Cog, AdminCommandsInterface):
         self.bot = bot
     
     @commands.slash_command(
-        name="ping",
-        description=AdminCommandsInterface.ping.__doc__
+        name=Localised("ping", key='PING_COMMAND_NAME'),
+        description=Localised(AdminCommandsInterface.ping.__doc__, key='PING_COMMAND_DOC')
     )
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
         embed = disnake.Embed(

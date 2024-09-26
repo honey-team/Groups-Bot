@@ -12,5 +12,6 @@ async def on_ready():
     console.log("[white]Bot is running[/]")
 
 bot.load_extensions("cogs")
+bot.i18n.load("localization")
 
 bot.run(get_token())
