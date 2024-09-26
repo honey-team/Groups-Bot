@@ -1,13 +1,15 @@
 import disnake
+from rich.console import Console
 from disnake.ext import commands
 from services.token import get_token
 
-bot = commands.Bot(command_prefix=None)
+console = Console()
+bot = commands.InteractionBot()
 bot.activity = disnake.activity.Streaming(name="groups", url="https://www.google.com")
 
 @bot.event
 async def on_ready():
-    print("Bot ready")
+    console.log("[white]Bot is running[/]")
 
 bot.load_extension("cogs.member")
 
