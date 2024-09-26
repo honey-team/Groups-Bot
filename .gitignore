@@ -1,1 +1,6 @@
 __pycache__
+TOKEN.env
+config.json
+data.db
+logs.db
+.venv
