@@ -1,4 +1,4 @@
-class MemberCommandsInterface:
+class AdminCommandsInterface:
     def change_bot_lang(self, **kwargs):
         """
         / lang: "ru" | "en"
@@ -63,7 +63,7 @@ class MemberCommandsInterface:
         Admins can delete any temporary channel
         """
 
-class MemberCommandsInterface:
+class AdminCommandsInterface:
     def ping(self, **kwargs):
         """
         /
