@@ -19,7 +19,7 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
         )
         embed.set_footer(
             text="Groups bot",
-            icon_url="https://cdn.discordapp.com/attachments/1013814526010982462/1288785943238545418/image.png?ex=66f672f1&is=66f52171&hm=e0db78d214b9aef352a7f80ba42427b79c024abd1c1e1db2bf4bfd8c41aeaed0&"
+            icon_url=disnake.File("icon.png")
         )
         await inter.response.send_message(
             embed=embed,
