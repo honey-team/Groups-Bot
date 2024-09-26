@@ -53,9 +53,8 @@ python bot.py
 (дополнить!)
 
 ## To-do
-<!--❌✔️-->
 
-- ❌ Сделать README.md (TheHakerTech)
+- [x] Сделать README.md (TheHakerTech)
 (дополнить!)
 
 ## Команда проекта
