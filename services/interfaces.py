@@ -1,4 +1,4 @@
-class AdminCommandsInterface:
+class MemberCommandsInterface:
     def change_bot_lang(self, **kwargs):
         """
         / lang: "ru" | "en"
@@ -64,6 +64,12 @@ class AdminCommandsInterface:
         """
 
 class MemberCommandsInterface:
+    def ping(self, **kwargs):
+        """
+        /
+
+        Gets bot's latency
+        """
 
     # Temporary channels commands
 
