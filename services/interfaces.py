@@ -17,20 +17,6 @@ class AdminCommandsInterface:
 
         Change temporary channels prefix (prefix="$", channel_name="$hello_world")
         """
-
-    def add_special_role(self, **kwargs):
-        """
-        / role: role
-
-        Add a role that may create temporary channel
-        """
-
-    def remove_special_role(self, **kwargs):
-        """
-        / role: role or member
-
-        Remove a role that may create temporary channel
-        """
     
     def temporary_text_channels_enabled(self, **kwargs):
         """
