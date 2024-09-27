@@ -63,7 +63,7 @@ class AdminCommandsInterface:
         Admins can delete any temporary channel
         """
 
-class AdminCommandsInterface:
+class MemberCommandsInterface:
     def ping(self, **kwargs):
         """
         /
