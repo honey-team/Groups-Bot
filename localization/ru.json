@@ -1,0 +1,5 @@
+{
+    "PING_COMMAND_NAME":"пинг",
+    "PING_COMMAND_DOC": "Получает задержку бота.",
+    "PING_COMMAND_ANSWER": "Получает задержку бота."
+}
