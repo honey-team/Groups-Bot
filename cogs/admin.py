@@ -7,5 +7,4 @@ class MemberCog(commands.Cog, AdminCommandsInterface):
         self.bot = bot
 
 def setup(bot: commands.Bot):
-    # bot.add_cog(MemberCog(bot))
-    pass
+    bot.add_cog(MemberCog(bot))
