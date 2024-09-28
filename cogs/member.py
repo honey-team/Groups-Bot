@@ -2,7 +2,7 @@ import disnake, datetime
 from disnake import Localised
 from disnake.ext import commands
 from services.interfaces import MemberCommandsInterface
-from localization import localised_command
+from localization import localised_command, get_command_data
 
 class MemberCog(commands.Cog, MemberCommandsInterface):
     def __init__(self, bot: commands.Bot):
@@ -10,9 +10,10 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
     
     @localised_command()
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
+        data = get_command_data("ping", inter.locale)
         embed = disnake.Embed(
-            title="Pong!",
-            description=f"My ping: **{round(self.bot.latency * 1000)}**",
+            title=data['SUCCESS'], 
+            description=data['answer'].format(ping=round(self.bot.latency * 1000)),
             color=disnake.Colour.orange(),
             timestamp=datetime.datetime.now(),
         )
