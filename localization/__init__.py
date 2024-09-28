@@ -1,13 +1,16 @@
-import collections.abc
 import disnake
 from disnake.ext import commands
 from os import path
 import json
 import collections
-from typing import Coroutine
+from typing import Coroutine, Dict, Any, Callable, Optional, Sequence
+import asyncio
 
 defaults: dict = json.load(open(path.join(path.dirname(__file__), "en.json"), encoding="utf-8"))
 russian: dict = json.load(open(path.join(path.dirname(__file__), "ru.json"), encoding="utf-8"))
+for i in defaults.items():
+    if i[0] not in russian:
+        russian[i[0]] = i[1]
 
 class CaseInsensitiveDict(collections.abc.MutableMapping): # this class is stolen from requests
     """
@@ -103,10 +106,29 @@ def get_command_data(
         d = defaults
     return CaseInsensitiveDict({x[len(key) + 9:]: val for x, val in d.items() if x.startswith(key)})
 
+class LocalisedCommand(commands.InvokableSlashCommand):
+    def sub_command(self, key: str = None, options: list | None = None, connectors: dict | None = None, extras: Dict[str, Any] | None = None, **kwargs) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], commands.SubCommand]:
+        d = defaults
+        ru = russian
+        k = key.upper() if key is not None else func.__name__.upper()
+        name = f'{k}_COMMAND_NAME'
+        description = f'{k}_COMMAND_DOC'
+        return super().sub_command(
+            disnake.Localised(d.get(name), data={disnake.Locale.ru: ru.get(name)}) if name in ru else d.get(name),
+            disnake.Localised(d.get(description), data={disnake.Locale.ru: ru.get(description)}) if description in ru else d.get(description),
+            options, connectors, extras, **kwargs)
+
 def localised_command(
-    *,
     key: str=None,
-    **kwargs
+    dm_permission: Optional[bool] = None,
+    default_member_permissions = None,
+    nsfw: Optional[bool] = None,
+    options = None,
+    guild_ids: Optional[Sequence[int]] = None,
+    connectors: Optional[Dict[str, str]] = None,
+    auto_sync: Optional[bool] = None,
+    extras: Optional[Dict[str, Any]] = None,
+    **kwargs,
 ):
     """
     A shortcut decorator for localizing commands.
@@ -114,15 +136,32 @@ def localised_command(
     Arguments:
     key: str=None - Name of command for lookup in localization file
     """
-    def decorator(func: Coroutine):
+
+    def decorator(func) -> LocalisedCommand:
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError(f"<{func.__qualname__}> must be a coroutine function")
+        if hasattr(func, "__command_flag__"):
+            raise TypeError("Callback is already a command.")
+        if guild_ids and not all(isinstance(guild_id, int) for guild_id in guild_ids):
+            raise ValueError("guild_ids must be a sequence of int.")
         d = defaults
         ru = russian
         k = key.upper() if key is not None else func.__name__.upper()
         name = f'{k}_COMMAND_NAME'
         description = f'{k}_COMMAND_DOC'
-        return commands.slash_command(
+        return LocalisedCommand(
+            func,
             name=disnake.Localised(d.get(name), data={disnake.Locale.ru: ru.get(name)}) if name in ru else d.get(name),
             description=disnake.Localised(d.get(description), data={disnake.Locale.ru: ru.get(description)}) if description in ru else d.get(description),
-            **kwargs)(func)
+            options=options,
+            dm_permission=dm_permission,
+            default_member_permissions=default_member_permissions,
+            nsfw=nsfw,
+            guild_ids=guild_ids,
+            connectors=connectors,
+            auto_sync=auto_sync,
+            extras=extras,
+            **kwargs,
+        )
 
     return decorator
