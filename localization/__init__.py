@@ -3,13 +3,13 @@ from disnake.ext import commands
 from os import path
 import json
 
-defaults: dict = json.load(open(path.join(path.dirname(__file__), "en.json")))
-russian: dict = json.load(open(path.join(path.dirname(__file__), "ru.json")))
+defaults: dict = json.load(open(path.join(path.dirname(__file__), "en.json"), encoding="utf-8"))
+russian: dict = json.load(open(path.join(path.dirname(__file__), "ru.json"), encoding="utf-8"))
 
 def localised_command(
-        *,
-        key: str=None,
-        **kwargs
+    *,
+    key: str=None,
+    **kwargs
 ):
     """
     A shortcut decorator for localizing commands.
