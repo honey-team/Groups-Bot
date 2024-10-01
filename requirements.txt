@@ -1,2 +1,4 @@
 disnake==2.9.2
 rich==13.8.1
+aioslite==0.20.0
+aiofile==3.8.8

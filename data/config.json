@@ -1,0 +1,7 @@
+{
+    "paths":{
+        "database":"data/data.db",
+        "token_file":"data/TOKEN.env",
+        "localization":"localization"
+    }
+}
