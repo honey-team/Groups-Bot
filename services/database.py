@@ -6,19 +6,19 @@ from typing import Any
 class Database:
     INIT_TABLES = """
     CREATE TABLE IF NOT EXISTS guilds (
-        guild_id INTAGER PRIMARY KEY UNIQUE,
-        category_id INTAGER DEFAULT NULL,
-        text_channels_limit INTAGER DEFAULT NULL,
-        text_channels_delay INTAGER DEFAULT NULL,
-        text_channels_prefix INTAGER DEFAULT NULL,
-        text_channels_user_limit INTAGER DEFAULT NULL,
-        text_channels_enabled TEXT DEFAULT NULL
+        guild_id INTEGER PRIMARY KEY,
+        category_id INTEGER,
+        text_channels_limit INTEGER,
+        text_channels_delay INTEGER,
+        text_channels_prefix INTEGER,
+        text_channels_user_limit INTEGER,
+        text_channels_enabled TEXT
     );
     CREATE TABLE IF NOT EXISTS temp_channels (
-        channel_id INTAGER PRIMARY KEY,
-        guild_id INTAGER DEFAULT NULL UNIQUE,
-        members TEXT DEFAULT NULL,
-        private TEXT DEFAULT NULL
+        channel_id INTEGER PRIMARY KEY,
+        guild_id INTEGER,
+        members TEXT,
+        private TEXT
     );
     """
 
