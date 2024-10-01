@@ -1,3 +1,8 @@
+from services.config import Config
+
 def get_token() -> str:
-    with open("data/TOKEN.env", "r") as tf:
-        return tf.read()
+    if path := Config["paths"]["token_file"]:
+        with open(path, "r") as tf:
+            return tf.read()
+    else:
+        raise TypeError()
