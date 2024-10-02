@@ -8,17 +8,17 @@ class Database:
     CREATE TABLE IF NOT EXISTS guilds (
         guild_id INTEGER PRIMARY KEY,
         category_id INTEGER,
-        text_channels_limit INTEGER,
-        text_channels_delay INTEGER,
-        text_channels_prefix INTEGER,
-        text_channels_user_limit INTEGER,
-        text_channels_enabled TEXT
+        text_channels_limit INTEGER DEFAULT 20,
+        text_channels_delay INTEGER DEFAULT 30,
+        text_channels_prefix TEXT DEFAULT 'group-',
+        text_channels_user_limit INTEGER DEFAULT 5,
+        text_channels_enabled INTEGER DEFAULT 1
     );
     CREATE TABLE IF NOT EXISTS temp_channels (
         channel_id INTEGER PRIMARY KEY,
-        guild_id INTEGER,
-        members TEXT,
-        private TEXT
+        guild_id INTEGER NOT NULL,
+        members TEXT NOT NULL,
+        private TEXT NOT NULL
     );
     """
 
