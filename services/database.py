@@ -58,18 +58,12 @@ class Database:
         @staticmethod
         async def get_configs(guild_id: int) -> (Any | dict):
             PATH = Config["paths"]["database"]
-            assert PATH
-            assert guild_id
-
-            data = {
-                "guild_id":guild_id
-            }
 
             async with aiosqlite.connect(PATH) as db:
                 db: aiosqlite.Connection = db
-                cursor = await db.execute("SELECT * FROM guilds WHERE guild_id=:guild_id", data)
-                if result := await cursor.fetchall():
-                    result = dict(zip(Database.GUILDS_KEYS, result[0])) # Fetchall returns [(data1, data2, ..., dataN)]
+                cursor = await db.execute("SELECT * FROM guilds WHERE guild_id=?", (guild_id,))
+                if result := await cursor.fetchone():
+                    result = dict(zip(Database.GUILDS_KEYS, result)) # Fetchone returns (data1, data2, ..., dataN)
                 else:
                     result = None
             return result
