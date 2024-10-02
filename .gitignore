@@ -2,3 +2,4 @@ __pycache__
 TOKEN.env
 .venv
 data.db
+logs.log
