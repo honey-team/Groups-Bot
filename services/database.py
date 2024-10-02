@@ -5,8 +5,6 @@ from typing import Any
 
 class Database:
     INIT_TABLES = """
-    DROP TABLE guilds;
-    DROP TABLE temp_channels;
     CREATE TABLE IF NOT EXISTS guilds (
         guild_id INTEGER PRIMARY KEY,
         category_id INTEGER,
