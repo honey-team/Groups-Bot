@@ -1,48 +1,43 @@
 class AdminCommandsInterface:
-    def change_bot_lang(self, **kwargs):
-        """
-        / lang: "ru" | "en"
-        """
-    
-    def change_temporary_text_channels_category(self, **kwargs):
+    def change_temp_text_channels_category(self, **kwargs): # Vaiser не надо делать
         """
         / category_id: int
 
         Change category, where bot will creates temporary channels
         """
     
-    def change_temporary_text_channels_prefix(self, **kwargs):
+    def change_temp_text_channels_prefix(self, **kwargs):
         """
         / prefix: str
 
         Change temporary channels prefix (prefix="$", channel_name="$hello_world")
         """
     
-    def temporary_text_channels_enabled(self, **kwargs):
+    def temp_text_channels_enabled(self, **kwargs):
         """
         / enabled: bool
 
         Special roles may creates temporary channels
         """
     
-    def change_temporary_channels_limit(self, **kwargs):
+    def change_temp_channels_limit(self, **kwargs):
         """
         / limit: int
         """
     
-    def change_user_temporary_channels_limit(self, **kwargs):
+    def change_user_temp_channels_limit(self, **kwargs):
         """
         / limit: int
         """
     
-    def change_temporary_channels_delay(self, **kwargs):
+    def change_temp_channels_delay(self, **kwargs):
         """
         / delay: int
 
         Users can't create more than 1 channel in delay time
         """
 
-    def delete_temporary_channel(self, **kwargs):
+    def delete_temp_channel(self, **kwargs): # Vaiser не надо делать
         """
         / channel: channel = current channel
 
@@ -71,13 +66,6 @@ class MemberCommandsInterface:
         / channel: channel
 
         Only owners of temporary channel can delete temporary channel
-        """
-    
-    def update_temporary_channel(self, **kwargs):
-        """
-        / channel: channel
-
-        Only owners of temporary channel can update temporary channel
         """
     
     def hide_temporary_channel(self, **kwargs):

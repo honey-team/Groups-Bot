@@ -1,4 +1,5 @@
 __pycache__
 TOKEN.env
-config.json
 .venv
+data.db
+logs.log

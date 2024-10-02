@@ -1,1 +1,6 @@
-{}
+{
+    "PING_COMMAND_NAME":"ping",
+    "PING_COMMAND_DOC": "Gets bot latency.",
+    "PING_COMMAND_ANSWER": "My ping: **{ping}**ms",
+    "PING_COMMAND_SUCCESS": "Pong!"
+}
