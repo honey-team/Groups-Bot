@@ -18,9 +18,9 @@ class Database:
     );
     CREATE TABLE IF NOT EXISTS temp_channels (
         channel_id INTEGER PRIMARY KEY,
-        guild_id INTEGER NOT NULL,
-        members TEXT NOT NULL,
-        private TEXT NOT NULL
+        guild_id INTEGER,
+        members TEXT,
+        private TEXT
     );
     """
 
