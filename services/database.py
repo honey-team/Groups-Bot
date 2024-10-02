@@ -5,20 +5,22 @@ from typing import Any
 
 class Database:
     INIT_TABLES = """
+    DROP TABLE guilds;
+    DROP TABLE temp_channels;
     CREATE TABLE IF NOT EXISTS guilds (
-        guild_id INTAGER PRIMARY KEY UNIQUE,
-        category_id INTAGER DEFAULT NULL,
-        text_channels_limit INTAGER DEFAULT NULL,
-        text_channels_delay INTAGER DEFAULT NULL,
-        text_channels_prefix INTAGER DEFAULT NULL,
-        text_channels_user_limit INTAGER DEFAULT NULL,
-        text_channels_enabled TEXT DEFAULT NULL
+        guild_id INTEGER PRIMARY KEY,
+        category_id INTEGER,
+        text_channels_limit INTEGER,
+        text_channels_delay INTEGER,
+        text_channels_prefix INTEGER,
+        text_channels_user_limit INTEGER,
+        text_channels_enabled TEXT
     );
     CREATE TABLE IF NOT EXISTS temp_channels (
-        channel_id INTAGER PRIMARY KEY,
-        guild_id INTAGER DEFAULT NULL UNIQUE,
-        members TEXT DEFAULT NULL,
-        private TEXT DEFAULT NULL
+        channel_id INTEGER PRIMARY KEY,
+        guild_id INTEGER NOT NULL,
+        members TEXT NOT NULL,
+        private TEXT NOT NULL
     );
     """
 
@@ -54,21 +56,36 @@ class Database:
 
             return await cursor.fetchall()
         
-    @staticmethod
-    async def get_guild_configs(guild_id: int) -> (Any | dict):
-        PATH = Config["paths"]["database"]
-        assert PATH
-        assert guild_id
+    class Guilds:
+        @staticmethod
+        async def get_configs(guild_id: int) -> (Any | dict):
+            PATH = Config["paths"]["database"]
+            assert PATH
+            assert guild_id
 
-        data = {
-            "guild_id":guild_id
-        }
+            data = {
+                "guild_id":guild_id
+            }
 
-        async with aiosqlite.connect(PATH) as db:
-            db: aiosqlite.Connection = db
-            cursor = await db.execute("SELECT * FROM guilds WHERE guild_id=:guild_id", data)
-            if result := await cursor.fetchall():
-                result = dict(zip(Database.GUILDS_KEYS, result[0])) # Fetchall returns [(data1, data2, ..., dataN)]
-            else:
-                result = None
-        return result
+            async with aiosqlite.connect(PATH) as db:
+                db: aiosqlite.Connection = db
+                cursor = await db.execute("SELECT * FROM guilds WHERE guild_id=:guild_id", data)
+                if result := await cursor.fetchall():
+                    result = dict(zip(Database.GUILDS_KEYS, result[0])) # Fetchall returns [(data1, data2, ..., dataN)]
+                else:
+                    result = None
+            return result
+
+        @staticmethod
+        async def ids() -> (Any | dict):
+            PATH = Config["paths"]["database"]
+            assert PATH
+
+            async with aiosqlite.connect(PATH) as db:
+                db: aiosqlite.Connection = db
+                cursor = await db.execute("SELECT (guild_id) FROM guilds")
+                if result := await cursor.fetchall():
+                    result = result[0] # Fetchall returns [(data1, data2, ..., dataN)]
+                else:
+                    result = None
+            return result
