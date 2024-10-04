@@ -2,5 +2,10 @@
     "PING_COMMAND_NAME":"пинг",
     "PING_COMMAND_DOC": "Получает задержку бота.",
     "PING_COMMAND_ANSWER": "Мой пинг: **{ping}**ms",
-    "PING_COMMAND_SUCCESS": "Понг!"
+    "PING_COMMAND_SUCCESS": "Понг!",
+    "T_GROUP_COMMAND_NAME": "тикет",
+    "T_GROUP_COMMAND_DOC": "Группа команд для тикетов",
+    "T_CREATE_COMMAND_NAME": "создать",
+    "T_CREATE_COMMAND_DOC": "Создать новый тикет.",
+    "T_CREATE_COMMAND_TEST": "Это тест!"
 }
