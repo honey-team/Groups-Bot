@@ -206,20 +206,41 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
 
         async with aiosqlite.connect(DB_PATH) as db:
             # Get guilds ids
-            guilds_ids = [g[0] for g in (await (await db.execute("SELECT (guild_id) FROM guilds")).fetchall())]
+            guilds_ids = await Database.Guilds.ids(db)
             
             if inter.guild_id not in guilds_ids:
                 # Insert guild to guilds
                 await db.execute("INSERT INTO guilds (guild_id) VALUES (?)", (inter.guild_id,))
                 await db.commit()
             # Get guild configs
-            guild_configs = dict(zip(
-                Database.GUILDS_KEYS,
-                (await (await db.execute("SELECT * FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall())[0]
-            ))
+            guild_configs = await Database.Guilds.get_config(db, inter.guild_id)
             # Format and send
             embed = Info(description="**Guild configurations:**")
             for key, value in guild_configs.items():
+                embed.add_field(
+                    name=f"`{key}`",
+                    value=f"`{value}`",
+                    inline=False
+                )
+            await inter.response.send_message(embed=embed, ephemeral=not self.debug)
+
+    @commands.slash_command(
+        name="group-config"
+    )
+    @commands.has_permissions(administrator=True)
+    async def get_group_configs(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        channel: disnake.TextChannel
+    ):
+        DB_PATH = Config["paths"]["database"]
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            group_configs = await Database.TempChannels.get_config(db, channel.id)
+            group_configs = Database.Json.parse(group_configs)
+            # Format and send
+            embed = Info(description="**Group configurations:**")
+            for key, value in group_configs.items():
                 embed.add_field(
                     name=f"`{key}`",
                     value=f"`{value}`",
@@ -244,7 +265,7 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
             guild_configs = await (await db.execute("SELECT * FROM guilds WHERE guild_id=?", (inter.guild_id,)))
 
         if inter.guild_id in guilds_ids:
-            guild_configs = Database.Guilds.get_configs(inter.guild_id)
+            guild_configs = Database.Guilds.get_config(inter.guild_id)
             if category_id := guild_configs["category_id"]:
                 if channel.category_id == category_id:
                     pass # Delete channel

@@ -67,6 +67,13 @@ class MemberCommandsInterface:
 
         Only owners of temporary channel can delete temporary channel
         """
+
+    def update_temporary_channel(self, **kwargs):
+        """
+        / channel: channel
+
+        Only owners of temporary channel can update temporary channel
+        """
     
     def hide_temporary_channel(self, **kwargs):
         """
