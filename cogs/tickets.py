@@ -1,6 +1,8 @@
 import disnake, datetime
 from disnake.ext import commands
 from localization import localised_command, get_command_data
+from services.database import Database
+import aiosqlite
 
 class TicketCog(commands.Cog):
     def __init__(self, bot: commands.Bot):

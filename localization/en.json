@@ -5,5 +5,8 @@
     "PING_COMMAND_SUCCESS": "Pong!",
     "T_GROUP_COMMAND_DOC": "Ticket group",
     "T_CREATE_COMMAND_DOC": "Create new ticket.",
-    "T_CREATE_COMMAND_TEST": "This is a test!"
+    "T_CREATE_COMMAND_TEST": "This is a test!",
+    "SUCCESS_TEXT": "Success!",
+    "INFO_TEXT": "Info",
+    "ERROR_TEXT": "Error"
 }

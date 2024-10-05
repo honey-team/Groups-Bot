@@ -88,6 +88,24 @@ class CaseInsensitiveDict(collections.abc.MutableMapping): # this class is stole
     
 # class ends here
 
+def get_localised_string(
+    key: str, 
+    locale: disnake.Locale
+):
+    """
+    A command for getting localized text from localization file.
+
+    Arguments:
+    key: str - Name of command for lookup in localization file
+    locale: disnake.Locale - Locale for getting localized text
+    """
+    key = key.upper()
+    if locale == disnake.Locale.ru:
+        d = russian
+    else:
+        d = defaults
+    return d.get(key)
+
 def get_command_data(
     key: str, 
     locale: disnake.Locale

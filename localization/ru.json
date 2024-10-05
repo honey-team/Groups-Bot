@@ -7,5 +7,8 @@
     "T_GROUP_COMMAND_DOC": "Группа команд для тикетов",
     "T_CREATE_COMMAND_NAME": "создать",
     "T_CREATE_COMMAND_DOC": "Создать новый тикет.",
-    "T_CREATE_COMMAND_TEST": "Это тест!"
+    "T_CREATE_COMMAND_TEST": "Это тест!",
+    "SUCCESS_TEXT": "Успех!",
+    "INFO_TEXT": "Инфо",
+    "ERROR_TEXT": "Ошибка"
 }

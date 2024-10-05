@@ -12,7 +12,7 @@ basicConfig(
 )
 
 bot = commands.InteractionBot()
-bot.activity = disnake.activity.Streaming(name="groups", url="https://www.google.com")
+bot.activity = disnake.activity.Streaming(name="groups", url="https://discord.honey-team.ru")
 
 @bot.event
 async def on_ready():

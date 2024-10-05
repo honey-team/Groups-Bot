@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Literal
 import disnake
 from disnake.utils import MISSING
+from localization import get_localised_string
 
 class Footer(disnake.Embed):
     def __init__(self, *, title: Any | None = None, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
@@ -12,9 +13,9 @@ class Footer(disnake.Embed):
         )
 
 class Success(Footer):
-    def __init__(self, *, title: Any | None = None, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
+    def __init__(self, *, locale: disnake.Locale = disnake.Locale.en_US, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
         super().__init__(
-            title="Success",
+            title=get_localised_string('success_text', locale),
             type=type,
             description=description,
             url=url,
@@ -24,9 +25,9 @@ class Success(Footer):
         )
 
 class Info(Footer):
-    def __init__(self, *, title: Any | None = None, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
+    def __init__(self, *, locale: disnake.Locale = disnake.Locale.en_US, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
         super().__init__(
-            title="Info",
+            title=get_localised_string('info_text', locale),
             type=type,
             description=description,
             url=url,
@@ -36,9 +37,9 @@ class Info(Footer):
         )
 
 class Error(Footer):
-    def __init__(self, *, title: Any | None = None, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
+    def __init__(self, *, locale: disnake.Locale = disnake.Locale.en_US, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
         super().__init__(
-            title="Error",
+            title=get_localised_string('error_text', locale),
             type=type,
             description=description,
             url=url,
