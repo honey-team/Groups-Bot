@@ -20,6 +20,13 @@ async def on_ready():
     info("Bot ready")
     await Database.init()
 
+@bot.event
+async def on_button_click(inter: disnake.MessageInteraction):
+    if inter.component.custom_id == "new-group":
+        await bot.cogs["MemberCog"].new_group(inter, ephemeral=True)
+    elif inter.component.custom_id == "groups-list":
+        await bot.cogs["MemberCog"].groups_list(inter, ephemeral=True)
+
 bot.load_extensions("cogs")
 
 bot.run(Token.get())

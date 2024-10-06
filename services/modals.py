@@ -5,7 +5,8 @@ from services.config import Config
 from services.embeds import *
 
 class NewGroupModal(disnake.ui.Modal):
-    def __init__(self, groups_category: disnake.CategoryChannel):
+    def __init__(self, groups_category: disnake.CategoryChannel, ephemeral: bool = False):
+        self.ephemeral = ephemeral
         self.groups_category = groups_category
         components = [
             disnake.ui.TextInput(
@@ -45,7 +46,7 @@ class NewGroupModal(disnake.ui.Modal):
             manage_permissions=True
         )
         # Response
-        await inter.response.send_message(embed=Success(description="Created group <#{0}>".format(channel.id)))
+        await inter.response.send_message(embed=Success(description="Created group <#{0}>".format(channel.id)), ephemeral=self.ephemeral)
 
 class EditGroupModal(disnake.ui.Modal):
     def __init__(self, channel: disnake.TextChannel, old_values: dict):

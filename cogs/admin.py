@@ -85,9 +85,9 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
                     guild_config["groups_limit"] = limit
                 else:
                     guild_config = {
-                        "groups_enabled":enabled,
+                        "groups_enabled":False,
                         "groups_limit":limit,
-                        "groups_category_id":category.id
+                        "groups_category_id":None
                     }
                 await Database.Guilds.set_config(db, inter.guild_id, guild_config)
                 await db.commit()
