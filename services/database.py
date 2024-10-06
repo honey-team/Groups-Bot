@@ -2,6 +2,7 @@ import aiosqlite
 from logging import *
 from services.config import Config
 from typing import Any
+from services.annotations import GuildData
 
 class Database:
     INIT_TABLES = """
@@ -53,7 +54,7 @@ class Database:
         info("data base inited")
     
     @staticmethod
-    async def test() -> tuple[list]:
+    async def test() -> list[tuple]:
         PATH = Config["paths"]["database"]
         assert PATH
 
@@ -65,7 +66,7 @@ class Database:
         
     class Guilds:
         @staticmethod
-        async def get_configs(guild_id: int) -> (Any | dict):
+        async def get_configs(guild_id: int) -> (GuildData | None):
             PATH = Config["paths"]["database"]
 
             async with aiosqlite.connect(PATH) as db:

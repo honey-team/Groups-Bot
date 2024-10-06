@@ -7,7 +7,10 @@
     "T_GROUP_COMMAND_DOC": "Группа команд для тикетов",
     "T_CREATE_COMMAND_NAME": "создать",
     "T_CREATE_COMMAND_DOC": "Создать новый тикет.",
-    "T_CREATE_COMMAND_TEST": "Это тест!",
+    "T_CREATE_COMMAND_SUCCESS": "Ваш тикет был создан: {ticket}",
+    "T_CREATE_COMMAND_DM": "зачем ты эту команду в лс вызвал",
+    "T_CREATE_COMMAND_GREET": "Добро пожаловать в тикеты, {user}! Пожалуйста дождитесь ответа администрации.",
+    "T_CREATE_COMMAND_GREET_SUPPORT": "Добро пожаловать в тикеты, {user}! Пожалуйста дождитесь ответа {support}.",
     "SUCCESS_TEXT": "Успех!",
     "INFO_TEXT": "Инфо",
     "ERROR_TEXT": "Ошибка"
