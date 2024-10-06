@@ -57,14 +57,14 @@ python bot.py
 - [x] Сделать README.md
 - [x] Добавить локализацию
 - [x] Написать интерфейсы
-- [] Реализовать интерфейсы
+- [x] Реализовать интерфейсы
 - [] Исправить баги
 - [] Развернуть проект
 
 ## Команда проекта
 
-- [TheHakerTech](https://github.com/TheHakerTech) — Programmer & Designer (owner)
-- [vaiserYT](https://github.com/vaiserYT) — Programmer
+- [TheHakerTech](https://github.com/TheHakerTech) — Programmer (owner)
+- [n0n1m](https://github.com/n0n1m) — Programmer
 
 ## Благодарности
 
