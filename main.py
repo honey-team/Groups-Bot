@@ -1,9 +1,10 @@
-import disnake
+import disnake, aiosqlite
 from logging import *
-from rich.console import Console
 from disnake.ext import commands
-from services.token import get_token
-from services.database import Database
+from services.token import Token
+from services.config import Config
+from services.database import *
+from threading import *
 
 basicConfig(
     filename="logs.log",
@@ -18,8 +19,7 @@ bot.activity = disnake.activity.Streaming(name="groups", url="https://www.google
 async def on_ready():
     info("Bot ready")
     await Database.init()
-    print(await Database.test())
 
 bot.load_extensions("cogs")
 
-bot.run(get_token())
+bot.run(Token.get())

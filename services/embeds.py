@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Any, Literal
 import disnake
-from disnake.utils import MISSING
 
 class Footer(disnake.Embed):
     def __init__(self, *, title: Any | None = None, type: None | Literal['rich'] | Literal['image'] | Literal['video'] | Literal['gifv'] | Literal['article'] | Literal['link'] = "rich", description: Any | None = None, url: Any | None = None, timestamp: datetime | None = None, colour: int | disnake.Colour | None = ..., color: int | disnake.Colour | None = ...) -> None:
@@ -46,3 +45,10 @@ class Error(Footer):
             colour=disnake.Colour.red(),
             color=disnake.Colour.red()
         )
+
+__all__ = (
+    "Footer",
+    "Success",
+    "Info",
+    "Error"
+)

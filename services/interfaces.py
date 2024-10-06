@@ -1,47 +1,33 @@
 class AdminCommandsInterface:
-    def change_temp_text_channels_category(self, **kwargs): # Vaiser не надо делать
+    def set_groups_category(self, **kwargs):
         """
-        / category_id: int
+        / category: Category
 
         Change category, where bot will creates temporary channels
         """
     
-    def change_temp_text_channels_prefix(self, **kwargs):
-        """
-        / prefix: str
-
-        Change temporary channels prefix (prefix="$", channel_name="$hello_world")
-        """
-    
-    def temp_text_channels_enabled(self, **kwargs):
+    def set_groups_enabled(self, **kwargs):
         """
         / enabled: bool
 
         Special roles may creates temporary channels
         """
     
-    def change_temp_channels_limit(self, **kwargs):
+    def set_groups_limit(self, **kwargs):
         """
         / limit: int
         """
-    
-    def change_user_temp_channels_limit(self, **kwargs):
-        """
-        / limit: int
-        """
-    
-    def change_temp_channels_delay(self, **kwargs):
-        """
-        / delay: int
 
-        Users can't create more than 1 channel in delay time
-        """
-
-    def delete_temp_channel(self, **kwargs): # Vaiser не надо делать
+    def del_group(self, **kwargs): # Vaiser не надо делать
         """
         / channel: channel = current channel
 
         Admins can delete any temporary channel
+        """
+    
+    def guild_config(self, **kwargs):
+        """
+        Admins can see guild configurations
         """
 
 class MemberCommandsInterface:
@@ -52,44 +38,51 @@ class MemberCommandsInterface:
         Gets bot's latency
         """
 
-    # Temporary channels commands
+    # Groups commands
 
-    def create_temporary_channel(self, **kwargs):
+    def new_group(self, **kwargs):
         """
         / name: str, description: str, private: bool
 
         Creates a temporary channel in temporary channels category. If private, only accessed members
         """
     
-    def delete_temporary_channel(self, **kwargs):
+    def del_group(self, **kwargs):
         """
         / channel: channel
 
         Only owners of temporary channel can delete temporary channel
         """
+
+    def edit_group(self, **kwargs):
+        """
+        / channel: channel
+
+        Only owners of temporary channel can update temporary channel
+        """
     
-    def hide_temporary_channel(self, **kwargs):
+    def hide_group(self, **kwargs):
         """
         / channel: channel = current channel
 
         Hide channel for this member
         """
     
-    def show_temporary_channel(self, **kwargs):
+    def show_group(self, **kwargs):
         """
         / channel_id: id
 
         Show channel for this member
         """
     
-    def list(self, **kwargs):
+    def groups_list(self, **kwargs):
         """
         /
 
         Gets list of non-private temporary channels (id and name)
         """
     
-    def info(self, **kwargs):
+    def group_info(self, **kwargs):
         """
         / channel: channel = current channel
 
@@ -126,3 +119,8 @@ class MemberCommandsInterface:
 
         Leaves temporary channel (if private). If owner leaves channel, and no other owners left, the channel will be deleted
         """
+
+__all__ = (
+    "AdminCommandsInterface",
+    "MemberCommandsInterface"
+)

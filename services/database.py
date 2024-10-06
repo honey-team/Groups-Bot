@@ -1,83 +1,45 @@
-import aiosqlite
-from logging import *
+from __future__ import annotations
+import aiosqlite, json
 from services.config import Config
 from typing import Any
 
 class Database:
     INIT_TABLES = """
     CREATE TABLE IF NOT EXISTS guilds (
-        guild_id INTEGER PRIMARY KEY,
-        category_id INTEGER,
-        text_channels_limit INTEGER DEFAULT 20,
-        text_channels_delay INTEGER DEFAULT 30,
-        text_channels_prefix TEXT DEFAULT 'group-',
-        text_channels_user_limit INTEGER DEFAULT 5,
-        text_channels_enabled INTEGER DEFAULT 1
-    );
-    CREATE TABLE IF NOT EXISTS temp_channels (
-        channel_id INTEGER PRIMARY KEY,
-        guild_id INTEGER NOT NULL,
-        members TEXT NOT NULL,
-        private TEXT NOT NULL
+        id INTEGER PRIMARY KEY,
+        guild_config TEXT NOT NULL
     );
     """
 
-    GUILDS_KEYS = (
-        "guild_id",
-        "category_id",
-        "text_channels_limit",
-        "text_channels_delay",
-        "text_channels_prefix",
-        "text_channels_user_limit",
-        "text_channels_enabled"
-    )
-
     @staticmethod
-    async def init() -> bool:
-        PATH = Config["paths"]["database"]
-        assert PATH
+    async def init() -> None:
+        DB_PATH = Config["paths"]["database"]
 
-        async with aiosqlite.connect(PATH) as db:
-            db: aiosqlite.Connection = db
+        async with aiosqlite.connect(DB_PATH) as db:
             await db.executescript(Database.INIT_TABLES)
             await db.commit()
-        info("data base inited")
     
-    @staticmethod
-    async def test() -> tuple[list]:
-        PATH = Config["paths"]["database"]
-        assert PATH
-
-        async with aiosqlite.connect(PATH) as db:
-            db: aiosqlite.Connection = db
-            cursor = await db.execute("SELECT * FROM guilds")
-
-            return await cursor.fetchall()
-        
     class Guilds:
         @staticmethod
-        async def get_configs(guild_id: int) -> (Any | dict):
-            PATH = Config["paths"]["database"]
-
-            async with aiosqlite.connect(PATH) as db:
-                db: aiosqlite.Connection = db
-                cursor = await db.execute("SELECT * FROM guilds WHERE guild_id=?", (guild_id,))
-                if result := await cursor.fetchone():
-                    result = dict(zip(Database.GUILDS_KEYS, result)) # Fetchone returns (data1, data2, ..., dataN)
-                else:
-                    result = None
-            return result
-
+        async def get_config(db: aiosqlite.Connection, guild_id: int) -> (None | dict):
+            if cursor := await (await db.execute(
+                "SELECT (guild_config) FROM guilds WHERE id=?",
+                (guild_id, )
+            )).fetchall():
+                return json.loads(cursor[0][0]) # fetchall return `tuple[list]`
+            else:
+                return None
+        
         @staticmethod
-        async def ids() -> (Any | dict):
-            PATH = Config["paths"]["database"]
-            assert PATH
+        async def set_config(
+            db: aiosqlite.Connection,
+            guild_id: int,
+            guild_config: dict
+        ) -> None:
+            guild_id = int(guild_id)
+            guild_config = json.dumps(guild_config)
+            await db.execute("INSERT OR REPLACE INTO guilds VALUES (?, ?)", (guild_id, guild_config))
 
-            async with aiosqlite.connect(PATH) as db:
-                db: aiosqlite.Connection = db
-                cursor = await db.execute("SELECT (guild_id) FROM guilds")
-                if result := await cursor.fetchall():
-                    result = result[0] # Fetchall returns [(data1, data2, ..., dataN)]
-                else:
-                    result = None
-            return result
+__all__ = (
+    "Database",
+)
