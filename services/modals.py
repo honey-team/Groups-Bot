@@ -34,11 +34,8 @@ class NewGroupModal(disnake.ui.Modal):
     async def callback(self, inter: disnake.ModalInteraction):
         channel = await self.groups_category.create_text_channel(
             name=inter.text_values["name"],
-            topic=inter.text_values["topic"]
-        )
-        await channel.set_permissions(
-            inter.guild.roles[0],
-            read_messages=True
+            topic=inter.text_values["topic"],
+            overwrites=self.groups_category.overwrites
         )
         await channel.set_permissions(
             inter.author,
@@ -97,3 +94,8 @@ class EditGroupModal(disnake.ui.Modal):
         for key, value in inter.text_values.items():
             embed.add_field(key, value)
         await inter.response.send_message(embed=embed)
+
+__all__ = (
+    "NewGroupModal",
+    "EditGroupModal"
+)

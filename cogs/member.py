@@ -30,19 +30,6 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
             ],
             ephemeral=ephemeral
         )
-    
-    @commands.slash_command(
-        name="guide"
-    )
-    async def guide(self, inter: disnake.ApplicationCommandInteraction):
-        await inter.response.send_message(
-            embed=Info(
-                description="""
-                Groups guild
-                
-                """
-            )
-        )
 
     @commands.slash_command(
         name="new-group"
