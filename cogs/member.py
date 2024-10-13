@@ -13,7 +13,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
         self.debug = True
 
     @commands.slash_command(
-        name="manage"
+        name="manage",
+        description="Outputs buttons with the command"
     )
     async def manage_groups(
         self,
@@ -32,7 +33,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
         )
 
     @commands.slash_command(
-        name="new-group"
+        name="new-group",
+        description="Outputs modal window to create new group"
     )
     async def new_group(
         self,
@@ -58,7 +60,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
     
     @commands.slash_command(
-        name="edit-group"
+        name="edit-group",
+        description="Outputs modal window to edit group"
     )
     async def edit_group(
         self,
@@ -92,7 +95,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
     
     @commands.slash_command(
-        name="del-group"
+        name="del-group",
+        description="Delete group"
     )
     async def del_group(
         self,
@@ -126,7 +130,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
 
     @commands.slash_command(
-        name="hide-group"
+        name="hide-group",
+        description="Hide group for current user"
     )
     async def hide_group(
         self,
@@ -160,7 +165,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
 
     @commands.slash_command(
-        name="show-group"
+        name="show-group",
+        description="Show group for current user"
     )
     async def show_group(
         self,
@@ -195,7 +201,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
     
     @commands.slash_command(
-        name="groups-list"
+        name="groups-list",
+        description="Outputs list of groups"
     )
     async def groups_list(
         self,
@@ -230,7 +237,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                 await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
 
     @commands.slash_command(
-        name="group-info"
+        name="group-info",
+        description="Outputs group info"
     )
     async def group_info(
         self,
