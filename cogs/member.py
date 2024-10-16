@@ -119,7 +119,8 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                         # Does channel is a group
                         if channel in groups_category.channels:
                             await channel.delete()
-                            await inter.response.send_message(embed=Success(description="Deleted group {0}".format(channel.name)), ephemeral=ephemeral)
+                            if not channel.id == inter.channel_id:
+                                await inter.response.send_message(embed=Success(description="Deleted group {0}".format(channel.name)), ephemeral=ephemeral)
                         else:
                             await inter.response.send_message(embed=Error(description="<#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
                     else:
