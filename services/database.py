@@ -14,7 +14,7 @@ class Database:
     @staticmethod
     async def init() -> None:
         DB_PATH = Config["paths"]["database"]
-
+        
         async with aiosqlite.connect(DB_PATH) as db:
             await db.executescript(Database.INIT_TABLES)
             await db.commit()
@@ -24,7 +24,7 @@ class Database:
         async def get_config(db: aiosqlite.Connection, guild_id: int) -> (None | dict):
             if cursor := await (await db.execute(
                 "SELECT (guild_config) FROM guilds WHERE id=?",
-                (guild_id, )
+                (guild_id,)
             )).fetchall():
                 return json.loads(cursor[0][0]) # fetchall return `tuple[list]`
             else:

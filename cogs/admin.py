@@ -1,5 +1,4 @@
 import disnake, aiosqlite
-from aiosqlite import Connection
 from disnake.ext import commands
 from services.database import *
 from services.embeds import *
@@ -32,7 +31,7 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
                 else:
                     guild_config = {
                         "groups_enabled":True,
-                        "groups_limit":None,
+                        "groups_limit":10,
                         "groups_category_id":category.id
                     }
                 await Database.Guilds.set_config(db, inter.guild_id, guild_config)
@@ -85,7 +84,7 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
                     guild_config["groups_limit"] = limit
                 else:
                     guild_config = {
-                        "groups_enabled":False,
+                        "groups_enabled":True,
                         "groups_limit":limit,
                         "groups_category_id":None
                     }
@@ -109,7 +108,11 @@ class AdminCog(commands.Cog, AdminCommandsInterface):
                     embed.add_field(f"`{key}`", f"`{value}`", inline=False)
                 await inter.response.send_message(embed=embed)
             else:
-                guild_config = {}
+                guild_config = {
+                    "groups_enabled":True,
+                    "groups_limit":10,
+                    "groups_category_id":None
+                }
                 await Database.Guilds.set_config(db, inter.guild_id, guild_config)
                 await db.commit()
 

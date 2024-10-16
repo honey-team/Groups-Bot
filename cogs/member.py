@@ -226,7 +226,7 @@ class MemberCog(commands.Cog, MemberCommandsInterface):
                             if show_id:
                                 embed.add_field(channel.name, f"{channel.topic} **ID:** {channel.id}", inline=False)
                             else:
-                                embed.add_field(channel.name, channel.topic)
+                                embed.add_field(channel.name, channel.topic, inline=False)
                         await inter.response.send_message(embed=embed, ephemeral=ephemeral)
                     else:
                         # Send error
