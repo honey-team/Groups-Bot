@@ -9,7 +9,6 @@
 # Groups Bot
 
 Бот, для создания временных голосовых и текстовых каналов в discord.
-(дополнить!)
 
 ## Содержание
 
@@ -40,10 +39,6 @@ pip install -r requirements.txt
 python bot.py
 ```
 
-### Список команд
-
-(дополнить!)
-
 ## FAQ
 
 ### Зачем вы разработали этот проект?
@@ -54,13 +49,17 @@ python bot.py
 
 ## To-do
 
-- [x] Сделать README.md (TheHakerTech)
-(дополнить!)
+- [x] Сделать README.md
+- [x] Добавить локализацию
+- [x] Написать интерфейсы
+- [x] Реализовать интерфейсы
+- [] Исправить баги
+- [] Развернуть проект
 
 ## Команда проекта
 
-- [TheHakerTech](https://github.com/TheHakerTech) — Programmer & Designer (owner)
-- [vaiserYT](https://github.com/vaiserYT) — Programmer
+- [TheHakerTech](https://github.com/TheHakerTech) — Programmer (owner)
+- [n0n1m](https://github.com/n0n1m) — Programmer
 
 ## Благодарности
 

@@ -1,9 +1,10 @@
-import disnake
+import disnake, aiosqlite
 from logging import *
-from rich.console import Console
 from disnake.ext import commands
-from services.token import get_token
-from services.database import Database
+from services.token import Token
+from services.config import Config
+from services.database import *
+from threading import *
 
 basicConfig(
     filename="logs.log",
@@ -18,8 +19,14 @@ bot.activity = disnake.activity.Streaming(name="groups", url="https://discord.ho
 async def on_ready():
     info("Bot ready")
     await Database.init()
-    print(await Database.test())
+
+@bot.event
+async def on_button_click(inter: disnake.MessageInteraction):
+    if inter.component.custom_id == "new-group":
+        await bot.cogs["MemberCog"].new_group(inter, ephemeral=True)
+    elif inter.component.custom_id == "groups-list":
+        await bot.cogs["MemberCog"].groups_list(inter, ephemeral=True)
 
 bot.load_extensions("cogs")
 
-bot.run(get_token())
+bot.run(Token.get())

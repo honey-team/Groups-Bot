@@ -81,7 +81,7 @@ class CaseInsensitiveDict(collections.abc.MutableMapping): # this class is stole
 
     # Copy is required
     def copy(self):
-         return CaseInsensitiveDict(self._store.values())
+        return CaseInsensitiveDict(self._store.values())
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, dict(self.items()))
