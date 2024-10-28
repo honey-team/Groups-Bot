@@ -1,32 +1,28 @@
-import disnake, aiosqlite
-from logging import *
+# -*- encoding: utf-8 -*-
 from disnake.ext import commands
-from services.token import Token
-from services.config import Config
-from services.database import *
-from threading import *
+from services import db
+import disnake, logging, settings, sys
 
-basicConfig(
-    filename="logs.log",
-    filemode="w",
-    level=INFO
+# init logging
+file_log = logging.FileHandler('log.log', "w")
+console_out = logging.StreamHandler()
+
+logging.basicConfig(
+    handlers=(file_log, console_out), 
+    format="[%(asctime)s | %(levelname)s]: %(message)s", 
+    datefmt="%m.%d.%Y %H:%M:%S",
+    level=logging.INFO
 )
 
+# init bot
 bot = commands.InteractionBot()
 bot.activity = disnake.activity.Streaming(name="groups", url="https://www.google.com")
-
+# bot s events
 @bot.event
 async def on_ready():
-    info("Bot ready")
-    await Database.init()
-
-@bot.event
-async def on_button_click(inter: disnake.MessageInteraction):
-    if inter.component.custom_id == "new-group":
-        await bot.cogs["MemberCog"].new_group(inter, ephemeral=True)
-    elif inter.component.custom_id == "groups-list":
-        await bot.cogs["MemberCog"].groups_list(inter, ephemeral=True)
+    logging.info("Bot ready")
+    await db.create_tables()
 
 bot.load_extensions("cogs")
 
-bot.run(Token.get())
+bot.run(open(settings.TOKEN_FILE_PATH).read())

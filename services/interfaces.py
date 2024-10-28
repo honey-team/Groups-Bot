@@ -1,37 +1,33 @@
-class AdminCommandsInterface:
-    def set_groups_category(self, **kwargs):
+class AdminGroupsCommandsInterface:
+    def set_groups_category(self):
         """
         / category: Category
 
-        Change category, where bot will creates temporary channels
+        Change category, where bot will creates groups
         """
     
-    def set_groups_enabled(self, **kwargs):
+    def set_groups_enabled(self):
         """
         / enabled: bool
-
-        Special roles may creates temporary channels
         """
     
-    def set_groups_limit(self, **kwargs):
+    def set_groups_limit(self):
         """
         / limit: int
         """
 
-    def del_group(self, **kwargs): # Vaiser не надо делать
+    def del_group(self): # Vaiser не надо делать
         """
         / channel: channel = current channel
-
-        Admins can delete any temporary channel
         """
     
-    def guild_config(self, **kwargs):
+    def guild_config(self):
         """
         Admins can see guild configurations
         """
 
-class MemberCommandsInterface:
-    def ping(self, **kwargs):
+class MemberGroupsCommandsInterface:
+    def ping(self):
         """
         /
 
@@ -40,87 +36,82 @@ class MemberCommandsInterface:
 
     # Groups commands
 
-    def new_group(self, **kwargs):
+    def new_group(self):
         """
         / name: str, description: str, private: bool
 
         Creates a temporary channel in temporary channels category. If private, only accessed members
         """
     
-    def del_group(self, **kwargs):
+    def del_group(self):
         """
         / channel: channel
 
         Only owners of temporary channel can delete temporary channel
         """
 
-    def edit_group(self, **kwargs):
+    def edit_group(self):
         """
         / channel: channel
 
         Only owners of temporary channel can update temporary channel
         """
     
-    def hide_group(self, **kwargs):
+    def hide_group(self):
         """
         / channel: channel = current channel
 
         Hide channel for this member
         """
     
-    def show_group(self, **kwargs):
+    def show_group(self):
         """
         / channel_id: id
 
         Show channel for this member
         """
     
-    def groups_list(self, **kwargs):
+    def groups_list(self):
         """
-        /
+        / show_id: bool
 
-        Gets list of non-private temporary channels (id and name)
+        Gets list of groups (id and name)
         """
     
-    def group_info(self, **kwargs):
+    def group_info(self):
         """
         / channel: channel = current channel
 
-        Gets info about owners, members and description of temporary channel
+        Gets info about owners, members and description of group
         """
 
-    # Commands for manage members
-
-    def invite_member(self, **kwargs):
+class AdminVoicesCommandsInterface:
+    def set_join_to_create_channel(self):
         """
-        / channel: channel = current channel, member: member
+        / channel: VoiceChannel
 
-        Only owners of temporary channel can invite members to their temporary channel
-        (if the channel is private). Bot sends invitation to invited member
+        Change join-to-create-channel
         """
     
-    def remove_member(self, **kwargs):
+    def set_voices_enabled(self):
         """
-        / channel: channel = current channel, member: member
+        / enabled: bool
 
-        Only owners of temporary channel can remove members from their temporary channel (if the channel is private)
+        Special roles may creates temporary channels
         """
-
-    def invite_owner(self, **kwargs):
+    
+    def set_voices_limit(self):
         """
-        / channel: channel = current channel, member: member
-
-        Only owners of temporary channel can invite other owners
+        / limit: int
         """
 
-    def leave(self, **kwargs):
+class MemberVoicesCommandsInterface:
+    def close_voice(self):
         """
-        / channel: channel = current channel
-
-        Leaves temporary channel (if private). If owner leaves channel, and no other owners left, the channel will be deleted
+        / channel: channel
         """
-
-__all__ = (
-    "AdminCommandsInterface",
-    "MemberCommandsInterface"
-)
+    
+    def open_voice(self):
+        """
+        / channel: channel
+        """

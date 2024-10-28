@@ -1,5 +1,8 @@
 __pycache__
-TOKEN.env
+
 .venv
-data.db
-logs.log
+venv
+
+*.env
+*.db
+*.log

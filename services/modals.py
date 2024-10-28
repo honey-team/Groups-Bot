@@ -1,8 +1,6 @@
-import disnake, datetime, aiosqlite, json
 from disnake import TextInputStyle
-from services.database import Database
-from services.config import Config
-from services.embeds import *
+from services import embeds
+import disnake
 
 class NewGroupModal(disnake.ui.Modal):
     def __init__(self, groups_category: disnake.CategoryChannel, ephemeral: bool = False):
@@ -32,23 +30,25 @@ class NewGroupModal(disnake.ui.Modal):
         )
 
     async def callback(self, inter: disnake.ModalInteraction):
-        channel = await self.groups_category.create_text_channel(
-            name=inter.text_values["name"],
-            topic=inter.text_values["topic"],
-            overwrites=self.groups_category.overwrites
-        )
-        await channel.set_permissions(
-            inter.author,
-            read_messages=True,
-            manage_permissions=True
-        )
-        # Response
-        await inter.response.send_message(embed=Success(description="Created group <#{0}>".format(channel.id)), ephemeral=self.ephemeral)
+        if not inter.text_values["name"] in [channel.name for channel in self.groups_category.text_channels]:
+            channel = await self.groups_category.create_text_channel(
+                name=inter.text_values["name"],
+                topic=inter.text_values["topic"],
+                overwrites=self.groups_category.overwrites
+            )
+            await channel.set_permissions(
+                inter.author,
+                read_messages=True,
+                manage_permissions=True
+            )
+            # Response
+            await inter.response.send_message(embed=embeds.Success(description="Created group <#{0}>".format(channel.id)), ephemeral=self.ephemeral)
+        else:
+            await inter.response.send_message(embed=embeds.Error(description="A group by that name already exists"), ephemeral=self.ephemeral)
 
 class EditGroupModal(disnake.ui.Modal):
-    def __init__(self, channel: disnake.TextChannel, old_values: dict):
+    def __init__(self, channel: disnake.TextChannel):
         self.channel = channel
-        self.old_values = old_values
         components = [
             disnake.ui.TextInput(
                 label="Name",
@@ -56,7 +56,7 @@ class EditGroupModal(disnake.ui.Modal):
                 custom_id="name",
                 style=TextInputStyle.short,
                 max_length=25,
-                value=old_values["name"]
+                value=self.channel.name
             ),
             disnake.ui.TextInput(
                 label="Description",
@@ -65,7 +65,7 @@ class EditGroupModal(disnake.ui.Modal):
                 style=TextInputStyle.paragraph,
                 max_length=200,
                 required=False,
-                value=old_values["topic"]
+                value=self.channel.topic
             ),
         ]
         super().__init__(
@@ -80,22 +80,13 @@ class EditGroupModal(disnake.ui.Modal):
             topic=inter.text_values["topic"],
         )
         await self.channel.set_permissions(
-            inter.guild.roles[0],
-            read_messages=True
-        )
-        await self.channel.set_permissions(
             inter.author,
             read_messages=True,
             manage_permissions=True
         )
         # Response
-        embed = Success(description="Edited group <#{0}>".format(self.channel.id))
+        embed = embeds.Success(description="Edited group <#{0}>".format(self.channel.id))
         # Add fields
         for key, value in inter.text_values.items():
             embed.add_field(key, value)
         await inter.response.send_message(embed=embed)
-
-__all__ = (
-    "NewGroupModal",
-    "EditGroupModal"
-)

@@ -1,284 +1,230 @@
-import disnake, aiosqlite
-from aiosqlite import Connection
+from __future__ import annotations
 from disnake.ext import commands
-from services.database import *
-from services.config import Config
-from services.embeds import *
-from services.interfaces import MemberCommandsInterface
-from services.modals import *
+from services import db, embeds, modals, interfaces
+import aiosqlite, settings, disnake
 
-class MemberCog(commands.Cog, MemberCommandsInterface):
+class MemberGroupsCog(commands.Cog, interfaces.MemberGroupsCommandsInterface):
     def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.debug = True
+        super().__init__()
 
+        self.bot = bot
+    
     @commands.slash_command(
-        name="manage",
-        description="Outputs buttons with the command"
+        name="ping",
+        description="Returns bot latency."
     )
-    async def manage_groups(
-        self,
-        inter: disnake.ApplicationCommandInteraction,
-        ephemeral: bool = True
-    ):
-        await inter.response.send_message(
-            embed=Info(description="Select action"),
-            components=[
-                disnake.ui.ActionRow(
-                    disnake.ui.Button(label="New group", style=disnake.ButtonStyle.primary, custom_id="new-group"),
-                    disnake.ui.Button(label="Groups list", style=disnake.ButtonStyle.primary, custom_id="groups-list")
-                )
-            ],
-            ephemeral=ephemeral
-        )
+    async def ping(self, inter: disnake.ApplicationCommandInteraction):
+        rounded_ping = round(self.bot.latency * 1000)
+        await inter.response.send_message(embeds.Info(description="My ping: **{0}**".format(rounded_ping)))
 
     @commands.slash_command(
         name="new-group",
-        description="Outputs modal window to create new group"
+        description="Returns bot latency."
     )
     async def new_group(
         self,
-        inter: disnake.ApplicationCommandInteraction,
-        ephemeral: bool = False
+        inter: disnake.ApplicationCommandInteraction
     ):
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-            if guild_config["groups_enabled"]:
-                # Does category exists
-                if groups_category in inter.guild.categories:
-                    # Does groups limit
-                    if len(groups_category.text_channels) + 1 <= guild_config["groups_limit"]:
-                        await inter.response.send_modal(NewGroupModal(groups_category, ephemeral=ephemeral))
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT groups_category_id, groups_count_limit, groups_enabled FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id, groups_count_limit, groups_enabled] = guild_config[0]
+                if groups_enabled:
+                    if groups_category_id:
+                        groups_category = inter.guild.get_channel(groups_category_id)
+                        if groups_category:
+                            if len(groups_category.text_channels) < groups_count_limit:
+                                # send modal window
+                                await inter.response.send_modal(modals.NewGroupModal(groups_category=groups_category))
+                            else:
+                                await inter.response.send_message(embed=embeds.Error(description="You cannot create more than 100 groups".format(groups_count_limit)))
+                        else:
+                            await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
                     else:
-                        await inter.response.send_message(embed=Error(description="Do not over groups limit"), ephemeral=ephemeral)
+                        await inter.response.send_message(embed=embeds.Error(description="Use </set-groups-category:1292115205157032052> before using this command.".format(groups_category_id)))
                 else:
-                    await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
+                    await inter.response.send_message(embed=embeds.Error(description="Groups are not enabled on this guild.".format(groups_category_id)))
             else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
-    
+                await inter.response.send_message(embed=embeds.Error(description="Use </setup:1300289012812222497> command, before using it."))
+
     @commands.slash_command(
         name="edit-group",
-        description="Outputs modal window to edit group"
+        description="Returns bot latency."
     )
     async def edit_group(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        channel: disnake.TextChannel | None = None,
-        ephemeral: bool = False
+        channel: disnake.TextChannel | None = None
     ):
+        # if channel is none, use inter.channel
         if not channel:
             channel = inter.channel
-        
-        DB_PATH = Config["paths"]["database"]
 
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                old_values = {
-                    "name":channel.name,
-                    "topic":channel.topic
-                }
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                # Does category exists
-                if groups_category in inter.guild.categories:
-                    # Does channel is a group
-                    if channel in groups_category.channels:
-                        await inter.response.send_modal(EditGroupModal(channel, old_values))
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT groups_category_id, groups_enabled FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id, groups_enabled] = guild_config[0]
+                if groups_enabled:
+                    groups_category = inter.guild.get_channel(groups_category_id)
+                    if groups_category:
+                        if channel in groups_category.text_channels:
+                            # send modal window
+                            await inter.response.send_modal(modals.EditGroupModal(channel=channel))
+                        else:
+                            await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
                     else:
-                        await inter.response.send_message(embed=Error(description="<#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
                 else:
-                    await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
+                    await inter.response.send_message(embed=embeds.Error(description="Groups are not enabled on this guild.".format(groups_category_id)))
             else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
-    
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
+
     @commands.slash_command(
         name="del-group",
-        description="Delete group"
+        description="Returns bot latency."
     )
     async def del_group(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        channel: disnake.TextChannel | None = None,
-        ephemeral: bool = False
+        channel: disnake.TextChannel
     ):
+        # if channel is none, use inter.channel
         if not channel:
             channel = inter.channel
-
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                if channel.permissions_for(inter.author).manage_permissions:
-                    # Does category exists
-                    if groups_category in inter.guild.categories:
-                        # Does channel is a group
-                        if channel in groups_category.channels:
+        
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT groups_category_id FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id] = guild_config[0]
+                groups_category = inter.guild.get_channel(groups_category_id)
+                if groups_category:
+                    if channel in groups_category.text_channels:
+                        # send modal window
+                        if channel.permissions_for(inter.author).manage_permissions:
                             await channel.delete()
-                            if not channel.id == inter.channel_id:
-                                await inter.response.send_message(embed=Success(description="Deleted group {0}".format(channel.name)), ephemeral=ephemeral)
+                            await inter.response.send_message(embed=embeds.Success(description="Deleted group {0}".format(channel.name)))    
                         else:
-                            await inter.response.send_message(embed=Error(description="<#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
+                            await inter.response.send_message(embed=embeds.Error(description="You are not the channel's owner.".format(channel.id)))    
                     else:
-                        await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
                 else:
-                    await inter.response.send_message(embed=Error(description="You have not permissions to do it"), ephemeral=ephemeral)
+                    await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
             else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
 
-    @commands.slash_command(
-        name="hide-group",
-        description="Hide group for current user"
-    )
-    async def hide_group(
-        self,
-        inter: disnake.ApplicationCommandInteraction,
-        channel: disnake.TextChannel | None = None,
-        ephemeral: bool = False
-    ):
-        if not channel:
-            channel = inter.channel
-
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                # Does category exists
-                if groups_category in inter.guild.categories:
-                    # Does channel is a group
-                    if channel in groups_category.channels:
-                        await channel.set_permissions(
-                            inter.author,
-                            view_channel=False
-                        )
-                        await inter.response.send_message(embed=Success(description="You hided group {0}".format(channel.name)), ephemeral=ephemeral)
-                    else:
-                        await inter.response.send_message(embed=Error(description="<#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
-                else:
-                    await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
-            else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
-
-    @commands.slash_command(
-        name="show-group",
-        description="Show group for current user"
-    )
-    async def show_group(
-        self,
-        inter: disnake.ApplicationCommandInteraction,
-        channel_id: int = commands.Param(None, large=True),
-        ephemeral: bool = False
-    ):
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                # Does channel exists
-                if channel := inter.guild.get_channel(channel_id) or inter.channel:
-                    # Does category exists
-                    if groups_category in inter.guild.categories:
-                        # Does channel is a group
-                        if channel in groups_category.channels:
-                            await channel.set_permissions(
-                                inter.author,
-                                view_channel=True
-                            )
-                            await inter.response.send_message(embed=Success(description="You showed group {0}".format(channel.name)), ephemeral=ephemeral)
-                        else:
-                            await inter.response.send_message(embed=Error(description="<#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
-                    else:
-                        await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
-                else:
-                    await inter.response.send_message(embed=Error(description="Uknown channel"), ephemeral=ephemeral)
-            else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
-    
     @commands.slash_command(
         name="groups-list",
-        description="Outputs list of groups"
+        description="Returns bot latency."
     )
     async def groups_list(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        show_id: bool = False,
-        ephemeral: bool = False
+        show_id: bool = False
     ):
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                # Does category exists
-                if groups_category in inter.guild.categories:
-                    # Does groups exists
-                    if groups_category.text_channels:
-                        embed = Info(description="**Groups list**")
-                        # Generate embed
-                        for channel in groups_category.text_channels:
-                            if show_id:
-                                embed.add_field(channel.name, f"{channel.topic} **ID:** {channel.id}", inline=False)
-                            else:
-                                embed.add_field(channel.name, channel.topic, inline=False)
-                        await inter.response.send_message(embed=embed, ephemeral=ephemeral)
-                    else:
-                        # Send error
-                        await inter.response.send_message(embed=Error(description="No groups have been created"), ephemeral=ephemeral)
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT (groups_category_id) FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id] = guild_config[0]
+                groups_category = inter.guild.get_channel(groups_category_id)
+                if groups_category:
+                    embed = embeds.Info(description="Groups list:")
+                    for group in groups_category.text_channels:
+                        # if show_id use an id likes a topic
+                        embed.add_field(
+                            group.name,
+                            group.id if show_id else group.topic,
+                            inline=False
+                        )
+                    await inter.response.send_message(embed=embed)
                 else:
-                    await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
+                    await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
             else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
 
     @commands.slash_command(
         name="group-info",
-        description="Outputs group info"
+        description="Returns bot latency."
     )
     async def group_info(
         self,
         inter: disnake.ApplicationCommandInteraction,
-        channel: disnake.TextChannel | None = None,
-        channel_id: int = commands.Param(None, large=True),
-        show_id: bool = False,
-        ephemeral: bool = False
+        channel: disnake.TextChannel,
+        show_id: bool = False
     ):
-        # Use channel or channel_id
-        channel = channel or inter.guild.get_channel(channel_id)
-        # If channel and channel_id None use inter.message.channel
+        # if channel is none, use inter.channel
         if not channel:
             channel = inter.channel
-        
-        DB_PATH = Config["paths"]["database"]
 
-        async with aiosqlite.connect(DB_PATH) as db:
-            guild_config = await Database.Guilds.get_config(db, inter.guild_id)
-            if guild_config["groups_enabled"]:
-                groups_category: disnake.CategoryChannel = inter.guild.get_channel(guild_config["groups_category_id"])
-                # Does category exists
-                if groups_category in inter.guild.categories:
-                    # Does channel is a group
-                    if channel in groups_category.channels:
-                        embed = Info(description="**Group info**")
-                        embed.add_field("Name", channel.name)
-                        embed.add_field("Description", channel.topic)
-                        # Show id if user want
-                        if show_id:
-                            embed.add_field("ID", channel.id, inline=False)
-                        
-                        await inter.response.send_message(embed=embed, ephemeral=ephemeral)
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT (groups_category_id) FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id] = guild_config[0]
+                groups_category = inter.guild.get_channel(groups_category_id)
+                if groups_category:
+                    if channel in groups_category.text_channels:
+                        embed = embeds.Info(description="Group info:")
+                        embed.add_field(channel.name, channel.id if show_id else channel.topic)
+                        await inter.response.send_message(embed=embed)
                     else:
-                        await inter.response.send_message(embed=Error(description="Channel <#{0}> is not a group".format(channel.id)), ephemeral=ephemeral)
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
                 else:
-                    await inter.response.send_message(embed=Error(description="Uknown category. Use /set-groups-category"), ephemeral=ephemeral)
+                    await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
             else:
-                await inter.response.send_message(embed=Error(description="Groups are not enabled on this guild"), ephemeral=ephemeral)
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
+    
+    @commands.slash_command(
+        name="show-group",
+        description="Returns bot latency."
+    )
+    async def show_group(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        channel_id: int = commands.Param(None, large=True)
+    ):
+        channel: disnake.TextChannel = inter.guild.get_channel(channel_id)
+        
+        if channel:
+            async with aiosqlite.connect(settings.DB_PATH) as con:
+                if guild_config := await (await con.execute("SELECT (groups_category_id) FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                    [groups_category_id] = guild_config[0]
+                    groups_category = inter.guild.get_channel(groups_category_id)
+                    if groups_category:
+                        if channel in groups_category.text_channels:
+                            await channel.set_permissions(
+                                inter.author,
+                                view_channel=True
+                            )
+                            await inter.response.send_message(embed=embeds.Success(description="You have shown <#{0}>.".format(channel.id)), ephemeral=True)
+                        else:
+                            await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
+                    else:
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
+                else:
+                    await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
+        else:
+            await inter.response.send_message(embed=embeds.Error(description="Invalid id: {0}".format(channel_id)))
+        
+    @commands.slash_command(
+        name="hide-group",
+        description="Returns bot latency."
+    )
+    async def hide_group(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        channel: disnake.TextChannel
+    ):
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT (groups_category_id) FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id] = guild_config[0]
+                groups_category = inter.guild.get_channel(groups_category_id)
+                if groups_category:
+                    if channel in groups_category.text_channels:
+                        await channel.set_permissions(
+                            inter.author,
+                            view_channel=False
+                        )
+                        await inter.response.send_message(embed=embeds.Success(description="You have hidden group."), ephemeral=True)
+                    else:
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
+                else:
+                    await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
+            else:
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
 
-def setup(bot: commands.Bot):
-    bot.add_cog(MemberCog(bot))
+def setup(bot: commands.Bot) -> None:
+    bot.add_cog(MemberGroupsCog(bot))

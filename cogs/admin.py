@@ -1,120 +1,141 @@
-import disnake, aiosqlite
+from __future__ import annotations
 from disnake.ext import commands
-from services.database import *
-from services.embeds import *
-from services.config import Config
-from services.interfaces import AdminCommandsInterface
+from services import db, embeds, interfaces
+import aiosqlite, settings, disnake
 
-class AdminCog(commands.Cog, AdminCommandsInterface):
+class AdminGroupsCog(commands.Cog, interfaces.AdminGroupsCommandsInterface):
     def __init__(self, bot: commands.Bot) -> None:
+        super().__init__()
+
         self.bot = bot
-        self.debug = True
     
     @commands.slash_command(
-        name="set-groups-category"
+        name="setup",
+        description="Setup bot for this guild"
     )
-    @commands.has_guild_permissions(administrator=True)
+    @commands.has_permissions(administrator=True)
+    async def setup(
+        self,
+        inter: disnake.ApplicationCommandInteraction
+    ):
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            await con.execute(
+                "INSERT OR REPLACE INTO guilds VALUES (?, ?, ?, ?)",
+                (inter.guild_id,) + db.DEFAULT_VALUES
+            )
+            await con.commit()
+        await inter.response.send_message(embed=embeds.Success(description="Successfully."), ephemeral=True)
+
+    @commands.slash_command(
+        name="set-groups-category",
+        description="Returns bot latency."
+    )
+    @commands.has_permissions(administrator=True)
     async def set_groups_category(
         self,
         inter: disnake.ApplicationCommandInteraction,
         category: disnake.CategoryChannel
     ):
-        if category in inter.guild.categories:
-            DB_PATH = Config["paths"]["database"]
-
-            db = await aiosqlite.connect(DB_PATH)
-            # check values
-            if category in inter.guild.categories:
-                # get old config
-                if guild_config := await Database.Guilds.get_config(db, inter.guild_id):
-                    guild_config["groups_category_id"] = category.id
-                else:
-                    guild_config = {
-                        "groups_enabled":True,
-                        "groups_limit":10,
-                        "groups_category_id":category.id
-                    }
-                await Database.Guilds.set_config(db, inter.guild_id, guild_config)
-                await db.commit()
-                await inter.response.send_message(embed=Success(description="Changed groups category id. New value: <#{0}>".format(category.id)))
-            await db.close()
-        else:
-            await inter.response.send_message(embed=Error(description="Unknown category"))
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            await con.execute(
+                "UPDATE guilds SET groups_category_id=? WHERE guild_id=?",
+                (category.id, inter.guild_id)
+            )
+            await con.commit()
+        await inter.response.send_message(embed=embeds.Success(description="groups_category_id new value: <#{0}>".format(category.id)), ephemeral=True)
     
     @commands.slash_command(
-        name="set-groups-enabled"
+        name="set-groups-limit",
+        description="Returns bot latency."
     )
-    @commands.has_guild_permissions(administrator=True)
-    async def set_groups_enabled(
-        self,
-        inter: disnake.ApplicationCommandInteraction,
-        enabled: bool
-    ):
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            # get old config
-            if guild_config := await Database.Guilds.get_config(db, inter.guild_id):
-                guild_config["groups_enabled"] = enabled
-            else:
-                guild_config = {
-                    "groups_enabled":enabled,
-                    "groups_limit":10,
-                    "groups_category_id":None
-                }
-            await Database.Guilds.set_config(db, inter.guild_id, guild_config)
-            await db.commit()
-            await inter.response.send_message(embed=Success(description="Changed groups enabled. New value: `{0}`".format(enabled)))
-
-    @commands.slash_command(
-        name="set-groups-limit"
-    )
-    @commands.has_guild_permissions(administrator=True)
+    @commands.has_permissions(administrator=True)
     async def set_groups_limit(
         self,
         inter: disnake.ApplicationCommandInteraction,
         limit: int
     ):
-        if limit > 0:
-            DB_PATH = Config["paths"]["database"]
-
-            async with aiosqlite.connect(DB_PATH) as db:
-                # get old config
-                if guild_config := await Database.Guilds.get_config(db, inter.guild_id):
-                    guild_config["groups_limit"] = limit
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            await con.execute(
+                "UPDATE guilds SET groups_count_limit=? WHERE guild_id=?",
+                (limit, inter.guild_id)
+            )
+            await con.commit()
+        await inter.response.send_message(embed=embeds.Success(description="groups_count_limit new value: {0}".format(limit)), ephemeral=True)
+    
+    @commands.slash_command(
+        name="set-groups-enabled",
+        description="Returns bot latency."
+    )
+    @commands.has_permissions(administrator=True)
+    async def set_groups_enabled(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        enabled: bool
+    ):
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            await con.execute(
+                "UPDATE guilds SET groups_enabled=? WHERE guild_id=?",
+                (int(enabled), inter.guild_id)
+            )
+            await con.commit()
+        await inter.response.send_message(embed=embeds.Success(description="groups_enabled new value: {0}".format(enabled)), ephemeral=True)
+    
+    @commands.slash_command(
+        name="del-group-admin",
+        description="Returns bot latency."
+    )
+    @commands.has_permissions(administrator=True)
+    async def del_group(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        channel: disnake.TextChannel | None = None
+    ):
+        # if channel is none, use inter.channel
+        if not channel:
+            channel = inter.channel
+        
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT (groups_category_id) FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                [groups_category_id] = guild_config[0]
+                groups_category = inter.guild.get_channel(groups_category_id)
+                if groups_category:
+                    if channel in groups_category.text_channels:
+                        # send modal window
+                        await channel.delete()
+                        await inter.response.send_message(embed=embeds.Success(description="Deleted group {0}".format(channel.name)))     
+                    else:
+                        await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a group.".format(channel.id)))
                 else:
-                    guild_config = {
-                        "groups_enabled":True,
-                        "groups_limit":limit,
-                        "groups_category_id":None
-                    }
-                await Database.Guilds.set_config(db, inter.guild_id, guild_config)
-                await db.commit()
-                await inter.response.send_message(embed=Success(description="Changed groups enabled. New value: `{0}`".format(limit)))
-        else:
-            await inter.response.send_message(embed=Error(description="Invalid value: `{0}`".format(limit)))
+                    await inter.response.send_message(embed=embeds.Error(description="<#{0}> is not a category".format(groups_category_id)))
+            else:
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))
 
     @commands.slash_command(
         name="guild-config"
     )
-    @commands.has_guild_permissions(administrator=True)
+    @commands.has_permissions(administrator=True)
     async def guild_config(self, inter: disnake.ApplicationCommandInteraction):
-        DB_PATH = Config["paths"]["database"]
-
-        async with aiosqlite.connect(DB_PATH) as db:
-            if guild_config := await Database.Guilds.get_config(db, inter.guild_id):
-                embed = Info(description="**Guild configurations**")
-                for key, value in guild_config.items():
-                    embed.add_field(f"`{key}`", f"`{value}`", inline=False)
+        async with aiosqlite.connect(settings.DB_PATH) as con:
+            if guild_config := await (await con.execute("SELECT groups_category_id, groups_count_limit, groups_enabled FROM guilds WHERE guild_id=?", (inter.guild_id,))).fetchall():
+                embed = embeds.Info(description="Guild configurations:")
+                for [key, value] in zip(
+                    (
+                        "groups_category_id",
+                        "groups_count_limit",
+                        "groups_enabled"
+                    ),
+                    guild_config[0]
+                ):
+                    embed.add_field(f"**{key}**", f"`{value}`", inline=False)
                 await inter.response.send_message(embed=embed)
             else:
-                guild_config = {
-                    "groups_enabled":True,
-                    "groups_limit":10,
-                    "groups_category_id":None
-                }
-                await Database.Guilds.set_config(db, inter.guild_id, guild_config)
-                await db.commit()
+                await inter.response.send_message(embed=embeds.Error(description="Use setup command, before using it."))            
 
-def setup(bot: commands.Bot):
-    bot.add_cog(AdminCog(bot))
+class AdminVoicesCog(commands.Cog, interfaces.AdminVoicesCommandsInterface):
+    def __init__(self, bot: commands.Bot) -> None:
+        super().__init__()
+
+        self.bot = bot
+
+def setup(bot: commands.Bot) -> None:
+    bot.add_cog(AdminGroupsCog(bot))
